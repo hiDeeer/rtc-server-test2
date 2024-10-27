@@ -90,24 +90,19 @@ export class StunTurnGateway implements OnModuleInit {
     const ipParts = ip.split('.').map(octet => parseInt(octet));
     const xorIp = ipParts.map((octet, i) => octet ^ ((magicCookie >> (8 * (3 - i))) & 0xFF));
 
-    // IP 버전 및 필요한 크기에 따라 버퍼 크기 조정
-    const mappedAddress = Buffer.alloc(12); // IPv4의 경우 충분한 크기로 설정
+    const mappedAddress = Buffer.alloc(12);  // 크기를 12로 증가
+    mappedAddress.writeUInt16BE(0x0020, 0);
+    mappedAddress.writeUInt16BE(8, 2);
+    mappedAddress.writeUInt8(0, 4);  // Reserved
+    mappedAddress.writeUInt8(family, 5);
+    mappedAddress.writeUInt16BE(xorPort, 6);
 
-    // XOR MAPPED ADDRESS 헤더 및 내용 작성
-    mappedAddress.writeUInt16BE(0x0020, 0); // Attribute type
-    mappedAddress.writeUInt16BE(8, 2); // Attribute length
-    mappedAddress.writeUInt8(0, 4); // Reserved
-    mappedAddress.writeUInt8(family, 5); // Family
-    mappedAddress.writeUInt16BE(xorPort, 6); // XORed port
-
-    // XOR IP address 추가
-    for (let i = 0; i < xorIp.length; i++) {
+    for (let i = 0; i < 4; i++) {  // IPv4는 4바이트
       mappedAddress.writeUInt8(xorIp[i], 8 + i);
     }
 
     return mappedAddress;
   }
-
 
   private processTurnMessage(msg: Buffer, rinfo: dgram.RemoteInfo): Buffer | null {
     if (msg.length < 20) {

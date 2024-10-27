@@ -19,8 +19,8 @@ async function bootstrap() {
 
   app.enableCors();
 
-  const signalingGateway = app.get(SignalingGateway);
-  const stunTurnGateway = app.get(StunTurnGateway);
+  // const signalingGateway = app.get(SignalingGateway);
+  // const stunTurnGateway = app.get(StunTurnGateway);
 
   await app.listen(443);
   console.log('WebRTC 서버가 https://hideeer.p-e.kr 에서 실행 중입니다.');
